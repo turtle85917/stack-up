@@ -1,0 +1,10 @@
+{
+  "name": "stack-up",
+  "version": "1.0.0",
+  "description": "Web Game",
+  "main": "index.html",
+  "repository": "git@github.com:turtle85917/stack-up.git",
+  "author": "Pulotodom <61219276+turtle85917@users.noreply.github.com>",
+  "license": "MIT",
+  "private": true
+}
