@@ -1,6 +1,6 @@
 import Rectangle from "../objects/rectangle";
-import type {Stack} from "../types/game";
 import Vector2 from "../utils/vector2";
+import type {Stack} from "../types/game";
 
 export default class Game{
   private lastY;
@@ -8,6 +8,7 @@ export default class Game{
 
   private isStackSpawn:boolean = false;
 
+  private width:number;
   private tick:number = 0;
 
   private readonly STACK_WIDTH = 240;
@@ -16,12 +17,24 @@ export default class Game{
   constructor(){
     this.stacks = [];
     this.lastY = $game.height + this.STACK_HEIGHT / 2;
+    this.width = this.STACK_WIDTH
   }
 
   public run():void{
     this.tick = requestAnimationFrame(this.onTick.bind(this));
     $game.canvas.addEventListener("click", () => {
-      // TODO: Put stack.
+      const lastStack = this.stacks.at(-1);
+      if(lastStack !== undefined){
+        lastStack.current = false;
+        this.isStackSpawn = false;
+        const previousStack = this.stacks.at(-2);
+        if(previousStack !== undefined){
+          const newWidth = Math.abs(previousStack.rect.position.x - lastStack.rect.position.x);
+          this.width -= newWidth;
+          lastStack.rect.rescale(new Vector2(this.width, this.STACK_HEIGHT));
+          lastStack.rect.translateTo(lastStack.rect.position.add(Vector2.right.multiply(newWidth)));
+        }
+      }
     });
   }
 
@@ -32,7 +45,7 @@ export default class Game{
       this.isStackSpawn = true;
       this.lastY -= this.STACK_HEIGHT;
       this.stacks.push({
-        rect: new Rectangle(this.STACK_WIDTH, this.STACK_HEIGHT, -this.STACK_WIDTH / 2, this.lastY),
+        rect: new Rectangle(this.width, this.STACK_HEIGHT, -this.STACK_WIDTH / 2, this.lastY),
         current: true
       });
     }
