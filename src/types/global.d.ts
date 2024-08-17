@@ -1,5 +1,8 @@
 export {};
 
 declare global {
-  var $game: HTMLCanvasElement;
+  var $game: CanvasRenderingContext2D & {
+    width: number;
+    height: number;
+  };
 }
