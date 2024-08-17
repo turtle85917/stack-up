@@ -21,7 +21,6 @@ export default class Color{
     return this.hexToRgb(this.hexcode);
   }
 
-
   public startGradient(endColor:Color|string):void{
     if(this.gradient)
       throw new Error("Already setting gradient");
