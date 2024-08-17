@@ -26,6 +26,7 @@ export default class Game{
     $game.canvas.addEventListener("click", () => {
       const lastStack = this.stacks.at(-1);
       if(lastStack !== undefined){
+        if(lastStack.rect.position.x < 0 || lastStack.rect.position.x > $game.width - this.width) return;
         lastStack.current = false;
         this.isStackSpawn = false;
         this.isLeft = !this.isLeft;
@@ -53,12 +54,7 @@ export default class Game{
       this.isStackSpawn = true;
       this.lastY -= this.STACK_HEIGHT;
       this.stacks.push({
-        rect: new Rectangle(
-          this.width,
-          this.STACK_HEIGHT,
-          this.isLeft ? -this.width / 2 : $game.width + this.width / 2,
-          this.lastY
-        ),
+        rect: new Rectangle(this.width, this.STACK_HEIGHT, this.isLeft ? -this.width / 2 : $game.width + this.width / 2, this.lastY),
         current: true
       });
     }
