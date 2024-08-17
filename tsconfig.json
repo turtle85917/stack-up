@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "strict": true,
-    "module": "es2022",
+    "module": "commonjs",
     "jsx": "preserve",
     "esModuleInterop": true,
     "sourceMap": true,
     "allowJs": true,
     "lib": [
-      "es6",
+      "esnext",
       "dom"
     ],
     "rootDir": "src",
