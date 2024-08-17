@@ -1,12 +1,12 @@
 import Vector2 from "../utils/vector2";
+import type Color from "../utils/color";
 
 export default class Base{
   constructor(
     protected width:number,
     protected height:number,
     protected x:number,
-    protected y:number,
-    protected color:string = "#000000"
+    protected y:number
   ){
     this.x = x - width / 2;
     this.y = y - height / 2;
@@ -32,5 +32,5 @@ export default class Base{
     this.y = newPosition.y;
   }
 
-  public draw():void{}
+  public draw(_color?:Color):void{}
 }

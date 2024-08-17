@@ -12,13 +12,18 @@ export default class Game{
   private width:number;
   private tick:number = 0;
 
-  private readonly STACK_WIDTH = 240;
-  private readonly STACK_HEIGHT = 50;
+  private readonly STACK_WIDTH = 280;
+  private readonly STACK_HEIGHT = 30;
 
   constructor(){
     this.stacks = [];
-    this.lastY = $game.height + this.STACK_HEIGHT / 2;
-    this.width = this.STACK_WIDTH
+    this.lastY = $game.height - this.STACK_HEIGHT / 2;
+    this.width = this.STACK_WIDTH;
+
+    this.stacks.push({
+      rect: new Rectangle(this.STACK_WIDTH, this.STACK_HEIGHT, $game.width / 2, this.lastY),
+      current: false
+    });
   }
 
   public run():void{
