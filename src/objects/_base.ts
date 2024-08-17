@@ -15,16 +15,15 @@ export default class Base{
   public get position():Vector2{
     return new Vector2(this.x, this.y);
   }
-  public set position(value:Vector2){
-    this.x = value.x;
-    this.y = value.y;
-  }
 
   public getCentroid():Vector2{
     return new Vector2($game.width / 2 - this.width / 2, $game.height / 2 - this.height / 2);
   }
 
-  public translateTo(){}
+  public translateTo(newPosition:Vector2):void{
+    this.x = newPosition.x;
+    this.y = newPosition.y;
+  }
 
   public draw():void{}
 }
