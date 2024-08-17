@@ -1,5 +1,6 @@
 import Rectangle from "../objects/rectangle";
 import Vector2 from "../utils/vector2";
+import Color from "../utils/color";
 import type {Stack} from "../types/game";
 
 export default class Game{
@@ -10,6 +11,7 @@ export default class Game{
   private isStackSpawn:boolean = false;
 
   private width:number;
+  private gradient:Color;
   private tick:number = 0;
 
   private readonly STACK_WIDTH = 280;
@@ -19,10 +21,13 @@ export default class Game{
     this.stacks = [];
     this.lastY = $game.height - this.STACK_HEIGHT / 2;
     this.width = this.STACK_WIDTH;
+    this.gradient = new Color("#25a6fa");
+    this.gradient.startGradient("#ff005b");
 
     this.stacks.push({
       rect: new Rectangle(this.STACK_WIDTH, this.STACK_HEIGHT, $game.width / 2, this.lastY),
-      current: false
+      current: false,
+      color: this.gradient.value
     });
   }
 
@@ -60,7 +65,8 @@ export default class Game{
       this.lastY -= this.STACK_HEIGHT;
       this.stacks.push({
         rect: new Rectangle(this.width, this.STACK_HEIGHT, this.isLeft ? -this.width / 2 : $game.width + this.width / 2, this.lastY),
-        current: true
+        current: true,
+        color: this.gradient.nextGradient()
       });
     }
 
@@ -68,8 +74,10 @@ export default class Game{
     if(lastStack !== undefined && lastStack.current){
       lastStack.rect.translateTo(lastStack.rect.position.add(this.direction.multiply(2.5)));
     }
-    for(const stack of this.stacks)
+    for(const stack of this.stacks){
+      $game.fillStyle = stack.color;
       stack.rect.draw();
+    }
   }
 
   private onTick():void{
