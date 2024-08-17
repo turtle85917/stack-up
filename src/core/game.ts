@@ -6,6 +6,7 @@ export default class Game{
   private lastY;
   private stacks:Stack[];
 
+  private isLeft:boolean = true;
   private isStackSpawn:boolean = false;
 
   private width:number;
@@ -27,15 +28,22 @@ export default class Game{
       if(lastStack !== undefined){
         lastStack.current = false;
         this.isStackSpawn = false;
+        this.isLeft = !this.isLeft;
         const previousStack = this.stacks.at(-2);
         if(previousStack !== undefined){
-          const newWidth = Math.abs(previousStack.rect.position.x - lastStack.rect.position.x);
-          this.width -= newWidth;
+          const overflowWidth = Math.abs(lastStack.rect.position.x - previousStack.rect.position.x);
+          this.width -= overflowWidth;
           lastStack.rect.rescale(new Vector2(this.width, this.STACK_HEIGHT));
-          lastStack.rect.translateTo(lastStack.rect.position.add(Vector2.right.multiply(newWidth)));
+          if(lastStack.rect.position.x < previousStack.rect.position.x){
+            lastStack.rect.translateTo(lastStack.rect.position.add(Vector2.right.multiply(overflowWidth)));
+          }
         }
       }
     });
+  }
+
+  private get direction():Vector2{
+    return Vector2.right.multiply(this.isLeft ? 1 : -1);
   }
 
   private gameLoop():void{
@@ -45,14 +53,19 @@ export default class Game{
       this.isStackSpawn = true;
       this.lastY -= this.STACK_HEIGHT;
       this.stacks.push({
-        rect: new Rectangle(this.width, this.STACK_HEIGHT, -this.STACK_WIDTH / 2, this.lastY),
+        rect: new Rectangle(
+          this.width,
+          this.STACK_HEIGHT,
+          this.isLeft ? -this.width / 2 : $game.width + this.width / 2,
+          this.lastY
+        ),
         current: true
       });
     }
 
     const lastStack = this.stacks.at(-1);
     if(lastStack !== undefined && lastStack.current){
-      lastStack.rect.translateTo(lastStack.rect.position.add(Vector2.right.multiply(2.5)));
+      lastStack.rect.translateTo(lastStack.rect.position.add(this.direction.multiply(2.5)));
     }
     for(const stack of this.stacks)
       stack.rect.draw();
