@@ -1,6 +1,7 @@
 import Rectangle from "../objects/rectangle";
 import Vector2 from "../utils/vector2";
 import Color from "../utils/color";
+import lerp from "../utils/lerp";
 import type {Stack} from "../types/game";
 
 export default class Game{
@@ -10,7 +11,10 @@ export default class Game{
   private isLeft:boolean = true;
   private isStackSpawn:boolean = false;
 
+  private overflowStack:Stack&{transparcy:number;}|null = null;
+
   private width:number;
+  private speed:number;
   private gradient:Color;
   private tick:number = 0;
 
@@ -21,6 +25,7 @@ export default class Game{
     this.stacks = [];
     this.lastY = $game.height - this.STACK_HEIGHT / 2;
     this.width = this.STACK_WIDTH;
+    this.speed = 2.5;
     this.gradient = new Color("#25a6fa");
     this.gradient.startGradient("#ff005b");
 
@@ -45,9 +50,17 @@ export default class Game{
           const overflowWidth = Math.abs(lastStack.rect.position.x - previousStack.rect.position.x);
           this.width -= overflowWidth;
           lastStack.rect.rescale(new Vector2(this.width, this.STACK_HEIGHT));
+          let overflowRectangle:Rectangle = new Rectangle(overflowWidth, this.STACK_HEIGHT, lastStack.rect.position.x + this.width + overflowWidth / 2, this.lastY);
           if(lastStack.rect.position.x < previousStack.rect.position.x){
             lastStack.rect.translateTo(lastStack.rect.position.add(Vector2.right.multiply(overflowWidth)));
+            overflowRectangle = new Rectangle(overflowWidth, this.STACK_HEIGHT, lastStack.rect.position.x - overflowWidth / 2, this.lastY);
           }
+          this.overflowStack = {
+            rect: overflowRectangle,
+            current: false,
+            color: lastStack.color,
+            transparcy: 1
+          };
         }
       }
     });
@@ -72,11 +85,21 @@ export default class Game{
 
     const lastStack = this.stacks.at(-1);
     if(lastStack !== undefined && lastStack.current){
-      lastStack.rect.translateTo(lastStack.rect.position.add(this.direction.multiply(2.5)));
+      lastStack.rect.translateTo(lastStack.rect.position.add(this.direction.multiply(this.speed)));
     }
     for(const stack of this.stacks){
       $game.fillStyle = stack.color;
       stack.rect.draw();
+    }
+    if(this.overflowStack !== null){
+      this.overflowStack.transparcy = lerp(this.overflowStack.transparcy, 0, 0.15);
+      if(this.overflowStack.transparcy <= 0.1){
+        this.overflowStack = null;
+      }else{
+        $game.fillStyle = `${this.overflowStack.color}${Math.floor(255 * this.overflowStack.transparcy).toString(16)}`;
+        this.overflowStack.rect.translateTo(this.overflowStack.rect.position.add(Vector2.down.multiply(5)));
+        this.overflowStack.rect.draw();
+      }
     }
   }
 

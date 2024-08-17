@@ -1,3 +1,5 @@
+import lerp from "./lerp";
+
 export default class Color{
   private endColor:string|null = null;
   private percent:number = 0;
@@ -33,7 +35,7 @@ export default class Color{
     this.percent += this.PERCENT_STEP;
     const [r1, g1, b1] = this.rgb;
     const [r2, g2, b2] = this.hexToRgb(this.endColor!);
-    return this.rgbToHex([r1 + this.percent * (r2 - r1), g1 + this.percent * (g2 - g1), b1 + this.percent * (b2 - b1)]);
+    return this.rgbToHex([lerp(r1, r2, this.percent), lerp(g1, g2, this.percent), lerp(b1, b2, this.percent)]);
   }
 
   private hexToRgb(_hex:string):RGB{

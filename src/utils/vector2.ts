@@ -11,10 +11,10 @@ export default class Vector2{
     return new Vector2(1, 0);
   }
   public static get up():Vector2{
-    return new Vector2(0, 1);
+    return new Vector2(0, -1);
   }
   public static get down():Vector2{
-    return new Vector2(0, -1);
+    return new Vector2(0, 1);
   }
 
   public add(b:Vector2):Vector2{
