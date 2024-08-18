@@ -11,7 +11,7 @@ export default class Game{
   private isLeft:boolean = true;
   private isStackSpawn:boolean = false;
 
-  private overflowStack:Stack&{transparcy:number;}|null = null;
+  private overflowStack:Stack&{transparency:number;}|null = null;
 
   private width:number;
   private speed:number;
@@ -73,7 +73,7 @@ export default class Game{
             rect: overflowRectangle,
             current: false,
             color: lastStack.color,
-            transparcy: 1
+            transparency: 1
           };
         }
       }
@@ -116,11 +116,11 @@ export default class Game{
 
     // animating overflow stack
     if(this.overflowStack !== null){
-      this.overflowStack.transparcy = lerp(this.overflowStack.transparcy, 0, 0.15);
-      if(this.overflowStack.transparcy <= 0.1){
+      this.overflowStack.transparency = lerp(this.overflowStack.transparency, 0, 0.15);
+      if(this.overflowStack.transparency <= 0.1){
         this.overflowStack = null;
       }else{
-        $game.fillStyle = `${this.overflowStack.color}${Math.floor(255 * this.overflowStack.transparcy).toString(16)}`;
+        $game.fillStyle = `${this.overflowStack.color}${Math.floor(255 * this.overflowStack.transparency).toString(16)}`;
         this.overflowStack.rect.translateTo(this.overflowStack.rect.position.add(Vector2.down.multiply(6)));
         this.overflowStack.rect.draw();
       }
