@@ -23,16 +23,28 @@ export default class Color{
     return this.hexToRgb(this.hexcode);
   }
 
-  public startGradient(endColor:Color|string):void{
-    if(this.gradient)
-      throw new Error("Already setting gradient");
-    this.endColor = typeof endColor === "string" ? endColor : endColor.value;
-    this.gradient = true;
+  public *startGradient(endColor:Color|string):Generator<string, string, string>{
+    if(!this.gradient){
+      this.endColor = typeof endColor === "string" ? endColor : endColor.value;
+      this.gradient = true;
+    }
+    while(true){
+      while(this.percent < 1){
+        this.percent += this.PERCENT_STEP;
+        yield this.getLerpColor();
+      }
+      while(this.percent > 0){
+        this.percent -= this.PERCENT_STEP;
+        yield this.getLerpColor();
+      }
+    }
   }
-  public nextGradient():string{
-    if(!this.gradient)
-      throw new Error("First, setting gradient");
-    this.percent += this.PERCENT_STEP;
+
+  public toString():string{
+    return this.value;
+  }
+
+  private getLerpColor():string{
     const [r1, g1, b1] = this.rgb;
     const [r2, g2, b2] = this.hexToRgb(this.endColor!);
     return this.rgbToHex([lerp(r1, r2, this.percent), lerp(g1, g2, this.percent), lerp(b1, b2, this.percent)]);
