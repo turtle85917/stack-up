@@ -32,12 +32,12 @@ export default class Game{
     this.width = this.STACK_WIDTH;
     this.speed = 2.5;
     this.score = 0;
-    this.gradient = new Color("#25a6fa").startGradient("#ff005b");
+    this.gradient = new Color("#696EFF").gettingGradient(["#9983FF", "#B18DFF", "#E0A2FF", "#F8ACFF"]);
 
     this.stacks.push({
       rect: new Rectangle(this.STACK_WIDTH, this.STACK_HEIGHT, $game.width / 2, this.lastY),
       current: false,
-      color: "#25a6fa"
+      color: "#696EFF"
     });
   }
 

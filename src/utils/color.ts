@@ -1,13 +1,9 @@
 import lerp from "./lerp";
 
 export default class Color{
-  private endColor:string|null = null;
-  private percent:number = 0;
-  private gradient:boolean = false;
-
-  private readonly PERCENT_STEP = 0.05;
-  private readonly REGEX_HEX1 = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/;
-  private readonly REGEX_HEX2 = /^#?([a-f\d]{3})$/;
+  private readonly PERCENT_STEP = 0.1;
+  private readonly REGEX_HEX1 = /^#?([a-fA-F\d]{2})([a-fA-F\d]{2})([a-fA-F\d]{2})$/;
+  private readonly REGEX_HEX2 = /^#?([a-fA-F\d]{3})$/;
 
   constructor(
     private hexcode:string
@@ -23,20 +19,16 @@ export default class Color{
     return this.hexToRgb(this.hexcode);
   }
 
-  public *startGradient(endColor:Color|string):Generator<string, string, string>{
-    if(!this.gradient){
-      this.endColor = typeof endColor === "string" ? endColor : endColor.value;
-      this.gradient = true;
-    }
+  public *gettingGradient(endColors:string[]):Generator<string, string, string>{
+    let percent:number = 0;
+    let colorIndex:number = 0;
     while(true){
-      while(this.percent < 1){
-        this.percent += this.PERCENT_STEP;
-        yield this.getLerpColor();
+      while(percent < 1){
+        percent += this.PERCENT_STEP;
+        yield this.getLerpColor(endColors[colorIndex - 1] ?? this.hexcode, endColors[colorIndex], percent);
       }
-      while(this.percent > 0){
-        this.percent -= this.PERCENT_STEP;
-        yield this.getLerpColor();
-      }
+      percent = 0;
+      colorIndex = (colorIndex + 1) % endColors.length;
     }
   }
 
@@ -44,10 +36,10 @@ export default class Color{
     return this.value;
   }
 
-  private getLerpColor():string{
-    const [r1, g1, b1] = this.rgb;
-    const [r2, g2, b2] = this.hexToRgb(this.endColor!);
-    return this.rgbToHex([lerp(r1, r2, this.percent), lerp(g1, g2, this.percent), lerp(b1, b2, this.percent)]);
+  private getLerpColor(start:string, end:string, percent:number):string{
+    const [r1, g1, b1] = this.hexToRgb(start);
+    const [r2, g2, b2] = this.hexToRgb(end);
+    return this.rgbToHex([lerp(r1, r2, percent), lerp(g1, g2, percent), lerp(b1, b2, percent)]);
   }
 
   private hexToRgb(_hex:string):RGB{
