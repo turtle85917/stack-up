@@ -32,5 +32,5 @@ export default class Base{
     this.y = newPosition.y;
   }
 
-  public draw(_color?:Color):void{}
+  public draw(_color?:Color|string):void{}
 }
