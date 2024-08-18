@@ -19,6 +19,10 @@ export default class Color{
     return this.hexToRgb(this.hexcode);
   }
 
+  public static alphaToHex(alpha:number):string{
+    return Math.floor(255 * alpha).toString(16);
+  }
+
   public *gettingGradient(endColors:string[]):Generator<string, string, string>{
     let percent:number = 0;
     let colorIndex:number = 0;

@@ -10,16 +10,21 @@ export default class Game{
 
   private isLeft:boolean = true;
   private isStackSpawn:boolean = false;
+  private isGameEnded:boolean = false;
 
   private overflowStack:Stack&{transparency:number;}|null = null;
 
   private width:number;
   private speed:number;
   private score:number;
+  private combo:number;
   private gradient:Generator<string, string, string>;
   private tick:number = 0;
+  private bestScore:number = 0;
 
-  private combo:number;
+  // gameover panel
+  private gameoverPanelTransparency:number = 0;
+  private gameoverTextTransparency:number = 0;
 
   // camera
   private cameraY:number = 0;
@@ -45,10 +50,12 @@ export default class Game{
   }
 
   public run():void{
+    this.bestScore = parseInt(localStorage.getItem("stack.bestScore") ?? '0');
     this.tick = requestAnimationFrame(this.onTick.bind(this));
 
     // click the screen
     $game.canvas.addEventListener("click", () => {
+      if(this.isGameEnded) return;
       const lastStack = this.stacks.at(-1);
       if(lastStack !== undefined){
         if(lastStack.rect.position.x < 0 || lastStack.rect.position.x > $game.width - this.width) return;
@@ -65,6 +72,17 @@ export default class Game{
         if(previousStack !== undefined){
           // cut the stack
           const overflowWidth = Math.abs(lastStack.rect.position.x - previousStack.rect.position.x);
+          if(this.width < overflowWidth){
+            this.isGameEnded = true;
+            this.gameoverPanelTransparency = 0;
+            this.gameoverTextTransparency = 0;
+            this.overflowStack = {...lastStack, current: false, transparency: 1};
+            if(this.bestScore < this.score){
+              localStorage.setItem("stack.bestScore", this.score.toString());
+              this.bestScore = this.score;
+            }
+            return;
+          }
           this.width -= overflowWidth;
           lastStack.rect.rescale(new Vector2(this.width, this.STACK_HEIGHT));
           let overflowRectangle:Rectangle = new Rectangle(overflowWidth, this.STACK_HEIGHT, lastStack.rect.position.x + this.width + overflowWidth / 2, this.lastY);
@@ -95,7 +113,6 @@ export default class Game{
   }
 
   private gameLoop():void{
-    // $game.clearRect(0, 0, $game.width, $game.height);
     $game.canvas.width = 0;
     $game.canvas.width = $game.width;
 
@@ -118,7 +135,7 @@ export default class Game{
 
     // moving current stack
     const lastStack = this.stacks.at(-1);
-    if(lastStack !== undefined && lastStack.current){
+    if(!this.isGameEnded && lastStack !== undefined && lastStack.current){
       lastStack.rect.translateTo(lastStack.rect.position.add(this.direction.multiply(this.speed)));
     }
     for(const stack of this.stacks)
@@ -130,7 +147,7 @@ export default class Game{
       if(this.overflowStack.transparency <= 0.1){
         this.overflowStack = null;
       }else{
-        $game.fillStyle = `${this.overflowStack.color}${Math.floor(255 * this.overflowStack.transparency).toString(16)}`;
+        $game.fillStyle = `${this.overflowStack.color}${Color.alphaToHex(this.overflowStack.transparency)}`;
         this.overflowStack.rect.translateTo(this.overflowStack.rect.position.add(Vector2.down.multiply(6)));
         this.overflowStack.rect.draw();
       }
@@ -145,6 +162,22 @@ export default class Game{
       $game.font = "15px Arial";
       $game.fillStyle = "#000000";
       $game.fillText(`COMBO +${this.combo}`, 10, 50 - this.cameraY);
+    }
+
+    // process gameover panel
+    if(this.isGameEnded){
+      this.gameoverPanelTransparency = lerp(this.gameoverPanelTransparency, 0.3, 0.04);
+      this.gameoverTextTransparency = lerp(this.gameoverTextTransparency, 1, 0.04);
+      $game.fillStyle = `#000000${Color.alphaToHex(this.gameoverPanelTransparency)}`;
+      $game.fillRect(0, -this.cameraY, $game.width, $game.height);
+      $game.font = "36px Arial";
+      $game.textAlign = "center";
+      $game.fillStyle = `#e81515${Color.alphaToHex(this.gameoverTextTransparency)}`;
+      $game.fillText("GAME OVER...", $game.width / 2, $game.height / 2 - 30 - this.cameraY);
+      $game.font = "18px Arial";
+      $game.fillStyle = `#000000${Color.alphaToHex(this.gameoverTextTransparency)}`;
+      $game.fillText(`획득 점수 : ${this.score.toLocaleString()}점`, $game.width / 2, $game.height / 2 + 20 - this.cameraY);
+      $game.fillText(`최고 점수 : ${this.bestScore.toLocaleString()}점`, $game.width / 2, $game.height / 2 + 60 - this.cameraY);
     }
   }
 
