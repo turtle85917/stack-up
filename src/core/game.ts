@@ -19,6 +19,8 @@ export default class Game{
   private gradient:Generator<string, string, string>;
   private tick:number = 0;
 
+  private combo:number;
+
   // camera
   private cameraY:number = 0;
   private newCameraY:number = 0;
@@ -32,6 +34,7 @@ export default class Game{
     this.width = this.STACK_WIDTH;
     this.speed = 2.5;
     this.score = 0;
+    this.combo = 0;
     this.gradient = new Color("#696EFF").gettingGradient(["#9983FF", "#B18DFF", "#E0A2FF", "#F8ACFF"]);
 
     this.stacks.push({
@@ -55,6 +58,9 @@ export default class Game{
         // manage camera position y
         if(this.stacks.length % 7 === 0)
           this.newCameraY = this.stacks.length * this.STACK_HEIGHT - this.STACK_HEIGHT / 2 * 5;
+        // speed up
+        if(this.stacks.length % 10 === 0)
+          this.speed *= 1.1;
         const previousStack = this.stacks.at(-2);
         if(previousStack !== undefined){
           // cut the stack
@@ -67,7 +73,11 @@ export default class Game{
             lastStack.rect.translateTo(lastStack.rect.position.add(Vector2.right.multiply(overflowWidth)));
             overflowRectangle = new Rectangle(overflowWidth, this.STACK_HEIGHT, lastStack.rect.position.x - overflowWidth / 2, this.lastY);
           }
-          this.score += this.width;
+          this.score += Math.floor(this.width / 2);
+          if(overflowWidth === 0){
+            this.combo++;
+          }else
+            this.combo = 0;
           // store overflow stack
           this.overflowStack = {
             rect: overflowRectangle,
@@ -130,6 +140,12 @@ export default class Game{
     $game.font = "20px Arial";
     $game.fillStyle = "#000";
     $game.fillText(`${this.score.toLocaleString()}점`, 10, 30 - this.cameraY);
+
+    if(this.combo !== 0){
+      $game.font = "15px Arial";
+      $game.fillStyle = "#000000";
+      $game.fillText(`COMBO +${this.combo}`, 10, 50 - this.cameraY);
+    }
   }
 
   private onTick():void{
